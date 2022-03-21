@@ -1,4 +1,6 @@
 require("@nomiclabs/hardhat-waffle");
+require('hardhat-abi-exporter');
+
 
 // This is a sample Hardhat task. To learn how to create your own go to
 // https://hardhat.org/guides/create-task.html
@@ -25,5 +27,13 @@ module.exports = {
       { version: "0.6.2", settings: { optimizer: { enabled: true, runs: 200 } } },
       { version: "0.6.6", settings: { optimizer: { enabled: true, runs: 200 } } },
     ]
+  },
+  abiExporter: {
+    path: './src/abi',
+    runOnCompile: true,
+    flat: true,
+    clear: true,
+    spacing: 2,
+    pretty: true,
   }
 };
