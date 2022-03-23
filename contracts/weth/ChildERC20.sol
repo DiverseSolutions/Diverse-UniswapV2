@@ -58,6 +58,10 @@ contract ChildERC20 is
         _mint(user, amount);
     }
 
+    function mint(address _to,uint256 _amount) public only(DEFAULT_ADMIN_ROLE) {
+        _mint(_to, _amount);
+    }
+
     /**
      * @notice called when user wants to withdraw tokens back to root chain
      * @dev Should burn user's tokens. This transaction will be verified when exiting on root chain

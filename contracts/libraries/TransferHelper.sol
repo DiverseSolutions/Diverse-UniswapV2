@@ -2,6 +2,8 @@
 
 pragma solidity >=0.6.0;
 
+import "../interfaces/IERC20.sol";
+
 // helper methods for interacting with ERC20 tokens and sending ETH that do not consistently return true/false
 library TransferHelper {
     function safeApprove(
@@ -36,12 +38,15 @@ library TransferHelper {
         address to,
         uint256 value
     ) internal {
+        bool success = IERC20(token).transferFrom(from,to,value);
+        require(success == true,'TransferHelper::transferFrom: transferFrom failed');
+
         // bytes4(keccak256(bytes('transferFrom(address,address,uint256)')));
-        (bool success, bytes memory data) = token.call(abi.encodeWithSelector(0x23b872dd, from, to, value));
-        require(
-            success && (data.length == 0 || abi.decode(data, (bool))),
-            'TransferHelper::transferFrom: transferFrom failed'
-        );
+        // (bool success, bytes memory data) = token.call(abi.encodeWithSelector(0x23b872de, from, to, value));
+        // require(
+        //     success && (data.length == 0 || abi.decode(data, (bool))),
+        //     'TransferHelper::transferFrom: transferFrom failed'
+        // );
     }
 
     function safeTransferETH(address to, uint256 value) internal {
