@@ -2,7 +2,7 @@
 pragma solidity ^0.6.0;
 
 import "./Context.sol";
-import "./interface/IERC20.sol";
+import "./interface/wIERC20.sol";
 
 import "./library/SafeMath.sol";
 import "./library/Address.sol";
@@ -32,7 +32,7 @@ import "./library/Address.sol";
  * functions have been added to mitigate the well-known issues around setting
  * allowances. See {IERC20-approve}.
  */
-contract ERC20 is Context, IERC20 {
+contract ERC20 is Context, wIERC20 {
     using SafeMath for uint256;
     using Address for address;
 

@@ -74,7 +74,6 @@ module.exports = {
   abiExporter: {
     path: './src/abi',
     runOnCompile: true,
-    except: ['IERC20'],
     flat: true,
     clear: true,
     spacing: 2,
