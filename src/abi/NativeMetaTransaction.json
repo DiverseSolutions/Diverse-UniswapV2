@@ -1,0 +1,7 @@
+[
+  "event MetaTransactionExecuted(address,address,bytes)",
+  "function executeMetaTransaction(address,bytes,bytes32,bytes32,uint8) payable returns (bytes)",
+  "function getChainId() pure returns (uint256)",
+  "function getDomainSeperator() view returns (bytes32)",
+  "function getNonce(address) view returns (uint256)"
+]

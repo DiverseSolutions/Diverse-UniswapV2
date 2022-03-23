@@ -1,0 +1,7 @@
+[
+  "function CHILD_CHAIN_ID() view returns (uint256)",
+  "function CHILD_CHAIN_ID_BYTES() view returns (bytes)",
+  "function ERC712_VERSION() view returns (string)",
+  "function ROOT_CHAIN_ID() view returns (uint256)",
+  "function ROOT_CHAIN_ID_BYTES() view returns (bytes)"
+]

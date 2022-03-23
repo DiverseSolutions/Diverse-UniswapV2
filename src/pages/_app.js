@@ -12,6 +12,8 @@ import useProvider from '../hooks/useProvider.js'
 function MyApp({ Component, pageProps }) {
   const queryClient = new QueryClient()
 
+  const provider = useProvider(state => state.provider)
+
   const connectProvider = useProvider(state => state.connectProvider)
   const connectSigner = useProvider(state => state.connectSigner)
 
@@ -46,9 +48,12 @@ function MyApp({ Component, pageProps }) {
       handleAccountChange()
 
       connectProvider()
-      connectSigner()
     }
   },[isMetamaskConnected])
+
+  useEffect(() => {
+    connectSigner()
+  }, [provider])
 
   useEffect(() => {
     if(metamaskChainId != null){

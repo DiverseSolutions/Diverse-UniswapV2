@@ -66,6 +66,7 @@ module.exports = {
       { version: "0.4.0", settings: { optimizer: { enabled: true, runs: 200 } } },
       { version: "0.5.0", settings: { optimizer: { enabled: true, runs: 200 } } },
       { version: "0.5.16", settings: { optimizer: { enabled: true, runs: 200 } } },
+      { version: "0.6.0", settings: { optimizer: { enabled: true, runs: 200 } } },
       { version: "0.6.2", settings: { optimizer: { enabled: true, runs: 200 } } },
       { version: "0.6.6", settings: { optimizer: { enabled: true, runs: 200 } } },
     ]
@@ -73,6 +74,7 @@ module.exports = {
   abiExporter: {
     path: './src/abi',
     runOnCompile: true,
+    except: ['IERC20'],
     flat: true,
     clear: true,
     spacing: 2,

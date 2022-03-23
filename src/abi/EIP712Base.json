@@ -1,0 +1,4 @@
+[
+  "function getChainId() pure returns (uint256)",
+  "function getDomainSeperator() view returns (bytes32)"
+]

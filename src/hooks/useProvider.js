@@ -9,12 +9,11 @@ async function connectProvider(set){
   set({ haveProvider: true, provider: provider})
 }
 
-async function connectSigner(state){
-  if(state.provider == null) return {}
-  
-  const signer = state.provider.getSigner()
-
-  return { signer: signer , haveSigner: true }
+async function connectSigner(state,set){
+  if(state.provider != null){
+    const signer = state.provider.getSigner()
+    set({ signer: signer , haveSigner: true })
+  }
 }
 
 
@@ -27,7 +26,11 @@ const useProvider = create(set => ({
   signer: null,
 
   connectProvider: async () => connectProvider(set),
-  connectSigner: () => set(connectSigner),
+  connectSigner: () => set((state) => {
+    connectSigner(state,set)
+    return {}
+  }),
+
 }))
 
 export default useProvider;

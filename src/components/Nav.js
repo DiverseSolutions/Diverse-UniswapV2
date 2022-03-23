@@ -7,11 +7,20 @@ export default function Nav() {
   const isMetamaskConnected = useMetamask(state => state.isMetamaskConnected)
   const metamaskAccount = useMetamask(state => state.metamaskAccount)
   const metamaskChainId = useMetamask(state => state.metamaskChainId)
+  const isOnCorrectChain = useMetamask(state => state.isOnCorrectChain)
 
   const requestMetamaskConnection = useMetamask(state => state.requestMetamaskConnection)
 
   function handleConnectToMetamask(){
     requestMetamaskConnection()
+  }
+
+  function checkConnection(){
+    if(isMetamaskConnected == false || isOnCorrectChain == false){
+      return 'btn-disabled'
+    }
+    
+    return ''
   }
 
   return (
@@ -39,11 +48,27 @@ export default function Nav() {
         <Link href="/"><a className="text-xl normal-case btn btn-ghost">ArdMoney</a></Link>
       </div>
 
+
       <div className="hidden navbar-center lg:flex">
         <ul className="p-0 menu menu-horizontal">
-          <li><Link href="/"><a className={``}>Home</a></Link></li>
-          <li><Link href="/swap"><a className={`${!isMetamaskConnected && ('btn-disabled')}`}>Swap</a></Link></li>
-          <li><Link href="/pool"><a className={`${!isMetamaskConnected && ('btn-disabled')} mx-3`}>Pool</a></Link></li>
+          <li><Link href="/"><a className={`${checkConnection()}`}>Home</a></Link></li>
+          <li className="mx-2"><Link href="/swap"><a className={`${checkConnection()}`}>Swap</a></Link></li>
+
+          <li class="dropdown dropdown-open">
+            <Link href="/pool/all">
+              <a tabindex="0" class="m-1" className={`${checkConnection()}`}>
+                Pool
+                <svg className="fill-current" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"><path d="M7.41,8.58L12,13.17L16.59,8.58L18,10L12,16L6,10L7.41,8.58Z"/></svg>
+              </a>
+            </Link>
+
+            <ul tabindex="0" class="dropdown-content menu p-2 shadow bg-base-100 rounded-box w-52">
+              <li><Link href="/pool/create"><a className={`${checkConnection()}`}>Create Pool</a></Link></li>
+              <li><Link href="/pool/all"><a className={`${checkConnection()} my-2`}>All Pool</a></Link></li>
+              <li><Link href="/pool/my"><a className={`${checkConnection()}`}>My Pool</a></Link></li>
+            </ul>
+          </li>
+
         </ul>
       </div>
       <div className="navbar-end">
