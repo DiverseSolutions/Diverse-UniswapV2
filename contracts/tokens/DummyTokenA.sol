@@ -4,7 +4,7 @@ pragma solidity 0.6.0;
 import "./DiverseERC20.sol";
 
 contract DummyTokenA is DiverseERC20 {
-    constructor() DiverseERC20("DummyTokenA", "TKNA") public {
+    constructor() DiverseERC20("DummyToken-A", "TKN-A") public {
         _mint(msg.sender, 10000000 * 10 ** decimals());
     }
 

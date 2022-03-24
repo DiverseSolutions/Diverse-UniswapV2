@@ -45,8 +45,8 @@ describe("UniswapV2Router", function () {
     await dummyTokenAContract.deployed()
     await dummyTokenBContract.deployed()
 
-    expect(await dummyTokenAContract.name()).to.equal("DummyTokenA")
-    expect(await dummyTokenBContract.name()).to.equal("DummyTokenB")
+    expect(await dummyTokenAContract.name()).to.equal("DummyToken-A")
+    expect(await dummyTokenBContract.name()).to.equal("DummyToken-B")
 
     const routerContract = await UniswapV2Router.deploy(factoryContract.address,wEthContract.address)
     await routerContract.deployed()

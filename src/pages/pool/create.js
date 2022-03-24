@@ -5,14 +5,23 @@ import { ethers } from "ethers";
 import Swal from 'sweetalert2'
 
 import TokenDropdown from '../../components/TokenDropdown.js'
-import { DiverseTokens,GanacheTokens,UniswapV2RouterAddress,GanacheUniswapV2RouterAddress,tokenLists } from '../../constants.js'
+import { 
+  DiverseTokens,
+  GanacheTokens,
+  UniswapV2RouterAddress,
+  GanacheUniswapV2RouterAddress,
+  UniswapV2FactoryAddress,
+  GanacheUniswapV2FactoryAddress,
+  tokenLists } from '../../constants.js'
 
 import IERC20abi from '../../abi/IERC20.json'
 import UniswapV2RouterABI from '../../abi/UniswapV2Router02.json'
+import UniswapV2FactoryABI from '../../abi/UniswapV2Factory.json'
 
 import useProvider from '../../hooks/useProvider.js'
 import useMetamask from '../../hooks/useMetamask.js'
 
+const uniswapFactoryAddress = process.env.NEXT_PUBLIC_ENV == 'prod' ?  UniswapV2FactoryAddress : GanacheUniswapV2FactoryAddress;
 const uniswapRouterAddress = process.env.NEXT_PUBLIC_ENV == 'prod' ?  UniswapV2RouterAddress : GanacheUniswapV2RouterAddress;
 const dummyTokens = process.env.NEXT_PUBLIC_ENV == 'prod' ? DiverseTokens : GanacheTokens;
 
@@ -69,17 +78,15 @@ export default function CreatePool() {
       await fromTokenContractSigner.approve(uniswapRouterAddress,ethers.utils.parseEther(fromTokenAmount,fromToken.decimals))
       await toTokenContractSigner.approve(uniswapRouterAddress,ethers.utils.parseEther(toTokenAmount,toToken.decimals))
 
+      setApproveButtonDisabled(true)
+      setSupplyButtonDisabled(false)
+
     }catch(e){
       Swal.fire({ icon: 'error', title: 'Token Smart Contract Problem', timer: 1500 })
       console.log(e)
     }
 
-    setTimeout(() => {
-      setApproveButtonDisabled(true)
-      setSupplyButtonDisabled(false)
-
-      setApproveButtonLoading(false)
-    },1000)
+    setApproveButtonLoading(false)
 
   }
 
@@ -94,14 +101,15 @@ export default function CreatePool() {
       let deadline = new Date();
       deadline.setHours(deadline.getHours() + 2);
 
-      let fromTokenContract = new ethers.Contract(fromToken.address, IERC20abi, provider);
-      let toTokenContract = new ethers.Contract(toToken.address, IERC20abi, provider);
-
+      let factory = new ethers.Contract(uniswapFactoryAddress,UniswapV2FactoryABI,provider)
+      // factory.on('PairCreated',(data) => {
+      //   console.log(data)
+      // })
 
       const uniswapRouterContract = new ethers.Contract(uniswapRouterAddress, UniswapV2RouterABI, provider);
       const uniswapRouterContractSigner = uniswapRouterContract.connect(signer)
 
-      let result = await uniswapRouterContractSigner.addLiquidity(
+      await (await uniswapRouterContractSigner.addLiquidity(
         fromToken.address,
         toToken.address,
         ethers.utils.parseUnits(fromTokenAmount,fromToken.decimals),
@@ -110,18 +118,38 @@ export default function CreatePool() {
         1,
         metamaskAccount,
         deadline.getTime()
-      );
+      )).wait();
+
+      let poolLength = (await factory.allPairsLength()).toNumber()
+      let pairAddress = await factory.allPairs(poolLength-1)
+      console.log(pairAddress)
+
+      Swal.fire({ 
+        icon: 'success', 
+        title: 'Successfully Added Pool', 
+        showCancelButton: true,
+        confirmButtonText: 'Add LP Token',
+        cancelButtonText: 'Close',
+        timer: 4000 
+      }).then((result) => {
+        if (result.isConfirmed) {
+          window.open(`https://metamask.dsolutions.mn/add-token?name=DiverseLPToken&symbol=LP&decimals=18&address=${pairAddress}&imgUrl=https://www.dsolutions.mn/static/media/logo-no-text.8057f73a.png`);
+        }
+      })
+
+      setApproveButtonDisabled(true)
+      setSupplyButtonDisabled(true)
+      setFromTokenAmount('0')
+      setToTokenAmount('0')
+      setRecheckUserBalance(true)
+
     }catch(e){
       Swal.fire({ icon: 'error', title: 'Uniswap Router Smart Contract Problem', timer: 1500 })
       console.log(e)
     }
 
+
     setSupplyButtonLoading(false)
-    setApproveButtonDisabled(true)
-    setSupplyButtonDisabled(true)
-    setFromTokenAmount('0')
-    setToTokenAmount('0')
-    setRecheckUserBalance(true)
 
   }
 
@@ -208,7 +236,10 @@ export default function CreatePool() {
       let fromTokenAllowanceBN = await fromTokenContract.allowance(metamaskAccount,uniswapRouterAddress)
       let toTokenAllowanceBN = await toTokenContract.allowance(metamaskAccount,uniswapRouterAddress)
 
-      if(parseInt(fromTokenAllowanceBN.toString()) < parseInt(fromTokenAmount) && parseInt(toTokenAllowanceBN.toString()) < parseInt(toTokenAmount)){
+      console.log(parseInt(fromTokenAllowanceBN.toString()))
+      console.log(parseInt(fromTokenAmount))
+
+      if(parseInt(fromTokenAllowanceBN.toString()) < parseInt(fromTokenAmount) || parseInt(toTokenAllowanceBN.toString()) < parseInt(toTokenAmount)){
         setApproveButtonDisabled(false)
       }
     }else{

@@ -1,19 +1,31 @@
 const GanacheTokens = [
   {
     logoURI: "https://cryptologos.cc/logos/usd-coin-usdc-logo.png?v=022",
-    name: 'DummyTokenA',
+    name: 'DummyToken-A',
     symbol: "TKNA",
-    address: "0x864ae9E244484E576e8950e10bBd10dF0C756f22",
+    address: "0x37d1a98cef3F0ee7A8b16f1FA1b80a7F5713f7dE",
     decimals: 18,
-    meta: 'diverse',
   },
   {
     logoURI: "https://cryptologos.cc/logos/tether-usdt-logo.svg?v=022",
-    name: 'DummyTokenB',
+    name: 'DummyToken-B',
     symbol: "TKNB",
-    address: "0x13758DE2a03f73E61b0d9Bef56C49C341FF90999",
+    address: "0x307AA17876E05b0aCd3F0A28E45c973b704d43e5",
     decimals: 18,
-    meta: 'diverse',
+  },
+  {
+    logoURI: "https://cryptologos.cc/logos/ethereum-eth-logo.png?v=022",
+    name: 'DummyToken-C',
+    symbol: "TKNC",
+    address: "0xB46Bed838Ab61D3166ad0327D622D2de458289F9",
+    decimals: 18,
+  },
+  {
+    logoURI: "https://cryptologos.cc/logos/avalanche-avax-logo.png?v=022",
+    name: 'DummyToken-D',
+    symbol: "TKND",
+    address: "0x5A44dCDC53337Bf3c87483Cb90E5dbf5E09eBC67",
+    decimals: 18,
   },
 ]
 
@@ -49,12 +61,20 @@ const tokenLists = {
 } 
 
 const UniswapV2RouterAddress = '0xfD4676DBAb9942cEB64674D864E29aEe31C4b209'
-const GanacheUniswapV2RouterAddress = '0xb71Cf7bb214C94F227766d99f89FC0339D860BFA'
+const UniswapV2FactoryAddress = ''
+
+const GanacheUniswapV2FactoryAddress = '0xFf6d35d7eADA57895a6C0804E958FB8D7080f99F'
+const GanacheUniswapV2RouterAddress = '0xF4c9c5c36972b09F88aD5ECC02165D16581Ea326'
 
 export {
   DiverseTokens,
   GanacheTokens,
+
   UniswapV2RouterAddress,
   GanacheUniswapV2RouterAddress,
+
+  UniswapV2FactoryAddress,
+  GanacheUniswapV2FactoryAddress,
+
   tokenLists,
 }
