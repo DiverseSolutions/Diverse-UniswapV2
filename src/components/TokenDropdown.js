@@ -7,9 +7,8 @@ import useMetamask from '../hooks/useMetamask'
 
 import IERC20 from '../abi/IERC20.json'
 
-export default function TokenDropdown({ modalId, tokens, token, setToken, tokenAmount, setTokenAmount }){
+export default function TokenDropdown({ modalId, tokens, token, setToken, tokenAmount, setTokenAmount , recheckUserBalance,setRecheckUserBalance }){
   const modalRef = useRef(null);
-  const [amount, setAmount] = useState(0.0)
   const [tokenContract, setTokenContract] = useState(null)
   const [userBalance, setUserBalance] = useState('0')
 
@@ -29,6 +28,10 @@ export default function TokenDropdown({ modalId, tokens, token, setToken, tokenA
     if(tokenContract != null){ getUserTokenBalance() }
   }, [tokenContract])
 
+  useEffect(() => {
+    if(recheckUserBalance){ getUserTokenBalance() }
+  }, [recheckUserBalance])
+
 
 
 
@@ -41,12 +44,14 @@ export default function TokenDropdown({ modalId, tokens, token, setToken, tokenA
       setToken(null)
       setUserBalance('0')
     }
+
+    setRecheckUserBalance(false)
   }
 
   function handleButton(t){
     modalRef.current.checked = false
     setToken(t)
-    setAmount(0)
+    setTokenAmount('0')
   }
 
   return (
@@ -58,25 +63,20 @@ export default function TokenDropdown({ modalId, tokens, token, setToken, tokenA
             <span className="text-gray-400 cursor-pointer label-text-alt hover:scale-150 transition-transform"
               onClick={() => {
                 if(parseInt(userBalance) > 0){
-                  setAmount(parseint(userbalance))
+                  setTokenAmount(parseInt(userBalance).toString())
                 }
               }}
               >Balance : {userBalance}</span>
           </label>
 
           <label className="input-group">
-            <input type="number" placeholder="0.0" value={amount} className="w-full input input-bordered" onChange={(e) => { 
+            <input type="number" placeholder="0" value={tokenAmount == 0 ? '' : tokenAmount.toString()} className="w-full input input-bordered" onChange={(e) => { 
 
-              if(e.target.value == ''){ setAmount(0); return; }
+              if(e.target.value == ''){ setTokenAmount('0'); return; }
+              if(e.target.value == '0'){ setTokenAmount('0'); return; }
 
               if(parseInt(e.target.value) <= parseInt(userBalance)){
-                if(e.target.value[0] == '0'){
-                  setAmount(e.target.value.substring(1))
-                  setTokenAmount(e.target.value.substring(1))
-                }else{
-                  setAmount(e.target.value)
-                  setTokenAmount(e.target.value)
-                }
+                setTokenAmount(parseInt(e.target.value).toString())
               }
 
             }}/>

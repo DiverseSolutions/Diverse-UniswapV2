@@ -5,13 +5,16 @@ import { ethers } from "ethers";
 import Swal from 'sweetalert2'
 
 import TokenDropdown from '../../components/TokenDropdown.js'
-import { DiverseTokens,UniswapV2RouterAddress,tokenLists } from '../../constants.js'
+import { DiverseTokens,GanacheTokens,UniswapV2RouterAddress,GanacheUniswapV2RouterAddress,tokenLists } from '../../constants.js'
 
 import IERC20abi from '../../abi/IERC20.json'
 import UniswapV2RouterABI from '../../abi/UniswapV2Router02.json'
 
 import useProvider from '../../hooks/useProvider.js'
 import useMetamask from '../../hooks/useMetamask.js'
+
+const uniswapRouterAddress = process.env.NEXT_PUBLIC_ENV == 'prod' ?  UniswapV2RouterAddress : GanacheUniswapV2RouterAddress;
+const dummyTokens = process.env.NEXT_PUBLIC_ENV == 'prod' ? DiverseTokens : GanacheTokens;
 
 export default function CreatePool() {
   const tokensQuery = useQuery('tokensQuery', () => fetch(tokenLists.polygon).then(res => res.json()).then(addTokens))
@@ -28,6 +31,12 @@ export default function CreatePool() {
   const [approveButtonDisabled, setApproveButtonDisabled] = useState(true)
   const [supplyButtonDisabled, setSupplyButtonDisabled] = useState(true)
 
+  const [approveButtonLoading, setApproveButtonLoading] = useState(false)
+  const [supplyButtonLoading, setSupplyButtonLoading] = useState(false)
+
+  const [recheckUserBalance, setRecheckUserBalance] = useState(false)
+
+
   useEffect(() => {
     let result = tokensQuery.data;
 
@@ -42,9 +51,13 @@ export default function CreatePool() {
     handleSwapButtonState()
   },[fromToken,toToken,toTokenAmount,fromTokenAmount])
 
+
+
+
   async function handleApproveFunction() {
     handleProviderSignerAuth()
     handleTokensAuth()
+    setApproveButtonLoading(true)
 
     try{
       const fromTokenContract = new ethers.Contract(fromToken.address, IERC20abi, provider);
@@ -53,13 +66,20 @@ export default function CreatePool() {
       const fromTokenContractSigner = fromTokenContract.connect(signer)
       const toTokenContractSigner = toTokenContract.connect(signer)
 
-      await fromTokenContractSigner.approve(UniswapV2RouterAddress,ethers.utils.parseUnits(fromTokenAmount,fromToken.decimals))
-      await toTokenContractSigner.approve(UniswapV2RouterAddress,ethers.utils.parseUnits(toTokenAmount,toToken.decimals))
+      await fromTokenContractSigner.approve(uniswapRouterAddress,ethers.utils.parseEther(fromTokenAmount,fromToken.decimals))
+      await toTokenContractSigner.approve(uniswapRouterAddress,ethers.utils.parseEther(toTokenAmount,toToken.decimals))
 
     }catch(e){
       Swal.fire({ icon: 'error', title: 'Token Smart Contract Problem', timer: 1500 })
       console.log(e)
     }
+
+    setTimeout(() => {
+      setApproveButtonDisabled(true)
+      setSupplyButtonDisabled(false)
+
+      setApproveButtonLoading(false)
+    },1000)
 
   }
 
@@ -68,14 +88,20 @@ export default function CreatePool() {
     handleProviderSignerAuth()
     handleTokensAuth()
 
+    setSupplyButtonLoading(true)
+
     try{
       let deadline = new Date();
       deadline.setHours(deadline.getHours() + 2);
 
-      const uniswapRouterContract = new ethers.Contract(UniswapV2RouterAddress, UniswapV2RouterABI, provider);
+      let fromTokenContract = new ethers.Contract(fromToken.address, IERC20abi, provider);
+      let toTokenContract = new ethers.Contract(toToken.address, IERC20abi, provider);
+
+
+      const uniswapRouterContract = new ethers.Contract(uniswapRouterAddress, UniswapV2RouterABI, provider);
       const uniswapRouterContractSigner = uniswapRouterContract.connect(signer)
 
-      await uniswapRouterContractSigner.addLiquidity(
+      let result = await uniswapRouterContractSigner.addLiquidity(
         fromToken.address,
         toToken.address,
         ethers.utils.parseUnits(fromTokenAmount,fromToken.decimals),
@@ -85,11 +111,17 @@ export default function CreatePool() {
         metamaskAccount,
         deadline.getTime()
       );
-
     }catch(e){
       Swal.fire({ icon: 'error', title: 'Uniswap Router Smart Contract Problem', timer: 1500 })
       console.log(e)
     }
+
+    setSupplyButtonLoading(false)
+    setApproveButtonDisabled(true)
+    setSupplyButtonDisabled(true)
+    setFromTokenAmount('0')
+    setToTokenAmount('0')
+    setRecheckUserBalance(true)
 
   }
 
@@ -123,6 +155,8 @@ export default function CreatePool() {
 
           <TokenDropdown 
             tokenAmount={fromTokenAmount} setTokenAmount={setFromTokenAmount}
+            recheckUserBalance={recheckUserBalance}
+            setRecheckUserBalance={setRecheckUserBalance}
             token={fromToken} setToken={setFromToken} 
             modalId={"from"} tokens={tokensQuery.data != null ? tokensQuery.data.tokens : []} />
 
@@ -130,17 +164,19 @@ export default function CreatePool() {
           
           <TokenDropdown 
             tokenAmount={toTokenAmount} setTokenAmount={setToTokenAmount}
+            recheckUserBalance={recheckUserBalance}
+            setRecheckUserBalance={setRecheckUserBalance}
             token={toToken} setToken={setToToken} 
             modalId={"to"} tokens={tokensQuery.data != null ? tokensQuery.data.tokens : []} />
 
           <div className="flex flex-col items-center w-full mt-8 text-white">
             <button 
               onClick={() => { handleApproveFunction() }}
-              className={buttonStyle("w-full btn btn-accent",approveButtonDisabled)} >Approve</button>
+              className={buttonStyle("w-full btn btn-accent",approveButtonDisabled,approveButtonLoading)} >Approve</button>
             <div className="my-2"></div>
             <button 
               onClick={() => { handleSupplyFunction() }}
-              className={buttonStyle("w-full btn btn-primary",supplyButtonDisabled)} >Supply</button>
+              className={buttonStyle("w-full btn btn-primary",supplyButtonDisabled,supplyButtonLoading)} >Supply</button>
           </div>
         </div>
       </div>
@@ -148,19 +184,33 @@ export default function CreatePool() {
     </div>
   )
 
-  function buttonStyle(styles,isDisabled){
-    if(isDisabled){
-      let noPrimaryResult = styles.replace('btn-primary')
-      let noAccentResult = noPrimaryResult.replace('btn-accent')
-      return `${noAccentResult} btn-disabled bg-grey-800`
-    }else{
-      return `${styles}`
+  function buttonStyle(styles,isDisabled,isLoading){
+    let result = styles
+
+    if(isLoading){
+      result += " loading";
     }
+
+    if(isDisabled){
+      result = result.replace('btn-primary')
+      result = result.replace('btn-accent')
+      result += " btn-disabled bg-grey-800" 
+    }
+
+    return result 
   }
 
-  function handleApproveButtonState() {
+  async function handleApproveButtonState() {
     if(fromToken != null && toToken != null && parseInt(toTokenAmount) != 0 && parseInt(fromTokenAmount) != 0){
-      setApproveButtonDisabled(false)
+      const fromTokenContract = new ethers.Contract(fromToken.address, IERC20abi, provider);
+      const toTokenContract = new ethers.Contract(toToken.address, IERC20abi, provider);
+
+      let fromTokenAllowanceBN = await fromTokenContract.allowance(metamaskAccount,uniswapRouterAddress)
+      let toTokenAllowanceBN = await toTokenContract.allowance(metamaskAccount,uniswapRouterAddress)
+
+      if(parseInt(fromTokenAllowanceBN.toString()) < parseInt(fromTokenAmount) && parseInt(toTokenAllowanceBN.toString()) < parseInt(toTokenAmount)){
+        setApproveButtonDisabled(false)
+      }
     }else{
       setApproveButtonDisabled(true)
     }
@@ -173,8 +223,8 @@ export default function CreatePool() {
           const fromTokenContract = new ethers.Contract(fromToken.address, IERC20abi, provider);
           const toTokenContract = new ethers.Contract(toToken.address, IERC20abi, provider);
 
-          let fromTokenAllowanceBN = await fromTokenContract.allowance(metamaskAccount,UniswapV2RouterAddress)
-          let toTokenAllowanceBN = await toTokenContract.allowance(metamaskAccount,UniswapV2RouterAddress)
+          let fromTokenAllowanceBN = await fromTokenContract.allowance(metamaskAccount,uniswapRouterAddress)
+          let toTokenAllowanceBN = await toTokenContract.allowance(metamaskAccount,uniswapRouterAddress)
 
           let fromTokenAllowance = ethers.utils.parseUnits(fromTokenAllowanceBN.toString(),fromToken.decimals).toString()
           let toTokenAllowance = ethers.utils.parseUnits(toTokenAllowanceBN.toString(),toToken.decimals).toString()
@@ -209,9 +259,9 @@ export default function CreatePool() {
 }
 
 function addTokens(queryData){
-  let tokens = queryData.tokens
-
-  queryData.tokens = [...DiverseTokens,...tokens]
+  if(process.env.NEXT_PUBLIC_ENV != 'prod'){
+    queryData.tokens = [...dummyTokens]
+  }
 
   return queryData
 }

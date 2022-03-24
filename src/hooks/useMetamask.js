@@ -41,7 +41,8 @@ async function requestMetamaskConnection(set){
 }
 
 function checkCorrectChain(set){
-  if(window.ethereum.networkVersion === '80001'){
+  if(window.ethereum.networkVersion === '5777'){
+  // if(window.ethereum.networkVersion === '80001'){
     set({ isOnCorrectChain: true })
   }else{
     set({ isOnCorrectChain: false })

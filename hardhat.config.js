@@ -55,6 +55,11 @@ module.exports = {
       chainId: 80001,
       accounts: { mnemonic: process.env.MNEMONIC}
     },
+    ganache: {
+      url: 'http://127.0.0.1:7545',
+      chainId: 1337,
+      accounts: [ process.env.GANACHE_PRIVATE_KEY_1 ]
+    },
   },
   etherscan: {
     apiKey: {
