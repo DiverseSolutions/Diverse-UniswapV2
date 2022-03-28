@@ -33,7 +33,7 @@ function MyApp({ Component, pageProps }) {
 
   useEffect(() => {
     checkMetamask()
-    checkMetamaskConnected()
+    // checkMetamaskConnected()
   },[])
 
   useEffect(() => {
