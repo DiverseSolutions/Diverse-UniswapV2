@@ -4,14 +4,11 @@ const moment = require('moment');
 const { MockProvider } = require("ethereum-waffle");
 
 
-describe("UniswapV2Router", function () {
+describe("UniswapV2Router - Swaps", function () {
   
-
-  it("Testing addLiquidity()", async function () {
+  it("Testing Swap()", async function () {
     const [owner, feeSetter ,wEthChainManager] = await ethers.getSigners();
     const provider = new MockProvider();
-
-
 
     const wEth = await ethers.getContractFactory("MaticWETH")
 
@@ -111,6 +108,38 @@ describe("UniswapV2Router", function () {
     let [ aReserve , bReserve  ] = await pairContract.getReserves();
     expect(aReserve).to.equal(ethers.utils.parseUnits("5000",18))
     expect(bReserve).to.equal(ethers.utils.parseUnits("5000",18))
+
+    // SWAP 
+    //
+    let path = [dummyTokenAContract.address,dummyTokenBContract.address]
+
+    expect(await dummyTokenAContract.balanceOf(owner.address)).to.equal(ethers.utils.parseUnits("5000",18))
+    expect(await dummyTokenBContract.balanceOf(owner.address)).to.equal(ethers.utils.parseUnits("5000",18))
+
+    tokenApproveLiquidityAmountWei = ethers.utils.parseUnits("1000",18);
+    await (await dummyTokenAContract.approve(
+      routerContract.address,
+      tokenApproveLiquidityAmountWei,
+      { from : owner.address }
+    )).wait()
+    expect(await dummyTokenAContract.allowance(owner.address,routerContract.address)).to.equal(ethers.utils.parseUnits("1000",18))
+
+    console.log("Amount Out")
+    let [ amountIn,amountOut ] = await routerContract.getAmountsOut(tokenApproveLiquidityAmountWei,path)
+
+    console.log(ethers.utils.formatUnits(amountIn.toString(),18));
+    console.log(ethers.utils.formatUnits(amountOut.toString(),18));
+
+    await (await routerContract.swapExactTokensForTokens(
+      tokenApproveLiquidityAmountWei,
+      1,
+      path,
+      owner.address,
+      2648035579,
+    )).wait()
+
+    expect(await dummyTokenAContract.balanceOf(owner.address)).to.equal(ethers.utils.parseUnits("4000",18))
+    expect(await dummyTokenBContract.balanceOf(owner.address)).to.equal(ethers.utils.parseUnits("5831.248957812239453059",18))
 
   })
   

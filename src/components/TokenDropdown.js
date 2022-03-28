@@ -7,7 +7,7 @@ import useMetamask from '../hooks/useMetamask'
 
 import IERC20 from '../abi/IERC20.json'
 
-export default function TokenDropdown({ modalId, tokens, token, setToken, tokenAmount, setTokenAmount , recheckUserBalance,setRecheckUserBalance }){
+export default function TokenDropdown({ modalId, tokens, token, setToken, tokenAmount, setTokenAmount , recheckUserBalance,setRecheckUserBalance,calculateTokenAmount }){
   const modalRef = useRef(null);
   const [tokenContract, setTokenContract] = useState(null)
   const [userBalance, setUserBalance] = useState('0')
@@ -64,6 +64,7 @@ export default function TokenDropdown({ modalId, tokens, token, setToken, tokenA
               onClick={() => {
                 if(parseInt(userBalance) > 0){
                   setTokenAmount(parseInt(userBalance).toString())
+                  calculateTokenAmount(parseInt(userBalance).toString())
                 }
               }}
               >Balance : {userBalance}</span>
@@ -77,6 +78,7 @@ export default function TokenDropdown({ modalId, tokens, token, setToken, tokenA
 
               if(parseInt(e.target.value) <= parseInt(userBalance)){
                 setTokenAmount(parseInt(e.target.value).toString())
+                calculateTokenAmount(parseInt(e.target.value).toString())
               }
 
             }}/>

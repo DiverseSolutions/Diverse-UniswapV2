@@ -186,6 +186,7 @@ export default function CreatePool() {
             recheckUserBalance={recheckUserBalance}
             setRecheckUserBalance={setRecheckUserBalance}
             token={fromToken} setToken={setFromToken} 
+            calculateTokenAmount={(amount) => {}}
             modalId={"from"} tokens={tokensQuery.data != null ? tokensQuery.data.tokens : []} />
 
           <div className="my-1"/>
@@ -194,6 +195,7 @@ export default function CreatePool() {
             tokenAmount={toTokenAmount} setTokenAmount={setToTokenAmount}
             recheckUserBalance={recheckUserBalance}
             setRecheckUserBalance={setRecheckUserBalance}
+            calculateTokenAmount={(amount) => {}}
             token={toToken} setToken={setToToken} 
             modalId={"to"} tokens={tokensQuery.data != null ? tokensQuery.data.tokens : []} />
 
