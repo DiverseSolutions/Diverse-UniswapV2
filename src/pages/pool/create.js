@@ -6,13 +6,14 @@ import Swal from 'sweetalert2'
 
 import TokenDropdown from '../../components/TokenDropdown.js'
 import { 
-  DiverseTokens,
-  GanacheTokens,
-  UniswapV2RouterAddress,
-  GanacheUniswapV2RouterAddress,
-  UniswapV2FactoryAddress,
-  GanacheUniswapV2FactoryAddress,
-  tokenLists } from '../../constants.js'
+
+  factoryAddress,
+  routerAddress,
+
+  allTokens, 
+  tokenLists 
+
+} from '../../constants.js'
 
 import IERC20abi from '../../abi/IERC20.json'
 import UniswapV2RouterABI from '../../abi/UniswapV2Router02.json'
@@ -20,10 +21,6 @@ import UniswapV2FactoryABI from '../../abi/UniswapV2Factory.json'
 
 import useProvider from '../../hooks/useProvider.js'
 import useMetamask from '../../hooks/useMetamask.js'
-
-const uniswapFactoryAddress = process.env.NEXT_PUBLIC_ENV == 'prod' ?  UniswapV2FactoryAddress : GanacheUniswapV2FactoryAddress;
-const uniswapRouterAddress = process.env.NEXT_PUBLIC_ENV == 'prod' ?  UniswapV2RouterAddress : GanacheUniswapV2RouterAddress;
-const dummyTokens = process.env.NEXT_PUBLIC_ENV == 'prod' ? DiverseTokens : GanacheTokens;
 
 export default function CreatePool() {
   const tokensQuery = useQuery('tokensQuery', () => fetch(tokenLists.polygon).then(res => res.json()).then(addTokens))
@@ -57,8 +54,11 @@ export default function CreatePool() {
 
   useEffect(() => {
     handleApproveButtonState()
-    handleSwapButtonState()
   },[fromToken,toToken,toTokenAmount,fromTokenAmount])
+
+  useEffect(() => {
+    handleSwapButtonState()
+  },[approveButtonDisabled])
 
 
 
@@ -75,8 +75,8 @@ export default function CreatePool() {
       const fromTokenContractSigner = fromTokenContract.connect(signer)
       const toTokenContractSigner = toTokenContract.connect(signer)
 
-      await fromTokenContractSigner.approve(uniswapRouterAddress,ethers.utils.parseEther(fromTokenAmount,fromToken.decimals))
-      await toTokenContractSigner.approve(uniswapRouterAddress,ethers.utils.parseEther(toTokenAmount,toToken.decimals))
+      await (await fromTokenContractSigner.approve(routerAddress,ethers.utils.parseEther(fromTokenAmount,fromToken.decimals))).wait() 
+      await (await toTokenContractSigner.approve(routerAddress,ethers.utils.parseEther(toTokenAmount,toToken.decimals))).wait()
 
       setApproveButtonDisabled(true)
       setSupplyButtonDisabled(false)
@@ -101,12 +101,9 @@ export default function CreatePool() {
       let deadline = new Date();
       deadline.setHours(deadline.getHours() + 2);
 
-      let factory = new ethers.Contract(uniswapFactoryAddress,UniswapV2FactoryABI,provider)
-      // factory.on('PairCreated',(data) => {
-      //   console.log(data)
-      // })
+      let factory = new ethers.Contract(factoryAddress,UniswapV2FactoryABI,provider)
 
-      const uniswapRouterContract = new ethers.Contract(uniswapRouterAddress, UniswapV2RouterABI, provider);
+      const uniswapRouterContract = new ethers.Contract(routerAddress, UniswapV2RouterABI, provider);
       const uniswapRouterContractSigner = uniswapRouterContract.connect(signer)
 
       await (await uniswapRouterContractSigner.addLiquidity(
@@ -122,7 +119,6 @@ export default function CreatePool() {
 
       let poolLength = (await factory.allPairsLength()).toNumber()
       let pairAddress = await factory.allPairs(poolLength-1)
-      console.log(pairAddress)
 
       Swal.fire({ 
         icon: 'success', 
@@ -235,15 +231,13 @@ export default function CreatePool() {
       const fromTokenContract = new ethers.Contract(fromToken.address, IERC20abi, provider);
       const toTokenContract = new ethers.Contract(toToken.address, IERC20abi, provider);
 
-      let fromTokenAllowanceBN = await fromTokenContract.allowance(metamaskAccount,uniswapRouterAddress)
-      let toTokenAllowanceBN = await toTokenContract.allowance(metamaskAccount,uniswapRouterAddress)
+      let fromTokenAllowanceBN = await fromTokenContract.allowance(metamaskAccount,routerAddress)
+      let toTokenAllowanceBN = await toTokenContract.allowance(metamaskAccount,routerAddress)
 
-      console.log(parseInt(fromTokenAllowanceBN.toString()))
-      console.log(parseInt(fromTokenAmount))
+      setApproveButtonDisabled(false)
 
-      if(parseInt(fromTokenAllowanceBN.toString()) < parseInt(fromTokenAmount) || parseInt(toTokenAllowanceBN.toString()) < parseInt(toTokenAmount)){
-        setApproveButtonDisabled(false)
-      }
+      // if(parseInt(fromTokenAllowanceBN.toString()) < parseInt(fromTokenAmount) || parseInt(toTokenAllowanceBN.toString()) < parseInt(toTokenAmount)){
+      // }
     }else{
       setApproveButtonDisabled(true)
     }
@@ -256,16 +250,21 @@ export default function CreatePool() {
           const fromTokenContract = new ethers.Contract(fromToken.address, IERC20abi, provider);
           const toTokenContract = new ethers.Contract(toToken.address, IERC20abi, provider);
 
-          let fromTokenAllowanceBN = await fromTokenContract.allowance(metamaskAccount,uniswapRouterAddress)
-          let toTokenAllowanceBN = await toTokenContract.allowance(metamaskAccount,uniswapRouterAddress)
+          let fromTokenAllowanceBN = await fromTokenContract.allowance(metamaskAccount,routerAddress)
+          let toTokenAllowanceBN = await toTokenContract.allowance(metamaskAccount,routerAddress)
 
           let fromTokenAllowance = ethers.utils.parseUnits(fromTokenAllowanceBN.toString(),fromToken.decimals).toString()
           let toTokenAllowance = ethers.utils.parseUnits(toTokenAllowanceBN.toString(),toToken.decimals).toString()
 
-          if( (parseInt(fromTokenAmount) <= parseInt(fromTokenAllowance)) && (parseInt(toTokenAmount) <= parseInt(toTokenAllowance)) ){
+
+          if(approveButtonDisabled){
             setSupplyButtonDisabled(false)
-            setApproveButtonDisabled(true)
+          }else{
+            setSupplyButtonDisabled(true)
           }
+
+          // if( (parseInt(fromTokenAmount) <= parseInt(fromTokenAllowance)) && (parseInt(toTokenAmount) <= parseInt(toTokenAllowance)) ){
+          // }
         }
       }
     }
@@ -292,9 +291,7 @@ export default function CreatePool() {
 }
 
 function addTokens(queryData){
-  if(process.env.NEXT_PUBLIC_ENV != 'prod'){
-    queryData.tokens = [...dummyTokens]
-  }
+  queryData.tokens = [...allTokens]
 
   return queryData
 }

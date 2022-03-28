@@ -3,7 +3,11 @@ import { ethers } from "ethers";
 import Link from 'next/link'
 import Swal from 'sweetalert2'
 
-import { GanacheUniswapV2RouterAddress,GanacheUniswapV2FactoryAddress } from '../../constants'
+import { 
+  
+  factoryAddress,
+
+} from '../../constants'
 
 import UniswapV2FactoryABI from '../../abi/UniswapV2Factory.json'
 import IUniswapV2PairABI from '../../abi/IUniswapV2Pair.json'
@@ -25,7 +29,7 @@ export default function PoolAll() {
   },[provider,signer])
 
   async function factoryContractInitialize(){
-    let factory = new ethers.Contract(GanacheUniswapV2FactoryAddress,UniswapV2FactoryABI,provider)
+    let factory = new ethers.Contract(factoryAddress,UniswapV2FactoryABI,provider)
     let poolLength = (await factory.allPairsLength()).toNumber()
 
     let _pairs = []

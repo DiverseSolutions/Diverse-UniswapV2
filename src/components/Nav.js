@@ -54,7 +54,7 @@ export default function Nav() {
           <li><Link href="/"><a className={`${checkConnection()}`}>Home</a></Link></li>
           <li className="mx-2"><Link href="/swap"><a className={`${checkConnection()}`}>Swap</a></Link></li>
 
-          <li class="dropdown dropdown-open">
+          <li className="dropdown dropdown-open">
             <Link href="/pool/all">
               <a tabindex="0" class="m-1" className={`${checkConnection()}`}>
                 Pool
@@ -62,7 +62,7 @@ export default function Nav() {
               </a>
             </Link>
 
-            <ul tabindex="0" class="dropdown-content menu p-2 shadow bg-base-100 rounded-box w-52">
+            <ul tabindex="0" className={`p-2 shadow dropdown-content menu bg-base-100 rounded-box w-52`}>
               <li><Link href="/pool/create"><a className={`${checkConnection()}`}>Create Pool</a></Link></li>
               <li><Link href="/pool/all"><a className={`${checkConnection()} my-2`}>All Pool</a></Link></li>
               <li><Link href="/pool/my"><a className={`${checkConnection()}`}>My Pool</a></Link></li>

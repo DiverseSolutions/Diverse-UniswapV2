@@ -41,8 +41,9 @@ async function requestMetamaskConnection(set){
 }
 
 function checkCorrectChain(set){
-  if(window.ethereum.networkVersion === '5777'){
-  // if(window.ethereum.networkVersion === '80001'){
+  let correctChain = process.env.NEXT_PUBLIC_ENV == 'prod' ? '80001' : '5777'
+
+  if(window.ethereum.networkVersion === correctChain){
     set({ isOnCorrectChain: true })
   }else{
     set({ isOnCorrectChain: false })

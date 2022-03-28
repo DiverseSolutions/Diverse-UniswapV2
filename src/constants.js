@@ -3,54 +3,86 @@ const GanacheTokens = [
     logoURI: "https://cryptologos.cc/logos/usd-coin-usdc-logo.png?v=022",
     name: 'DummyToken-A',
     symbol: "TKNA",
-    address: "0x8CFF69A24D87eAe878AC048756C26a366342F08A",
+    address: "0xA51cEC9bC15D1f0f319Fc77C82b271b7ab534E89",
     decimals: 18,
   },
   {
     logoURI: "https://cryptologos.cc/logos/tether-usdt-logo.svg?v=022",
     name: 'DummyToken-B',
     symbol: "TKNB",
-    address: "0xB2FbBA17De5Cbc5dae0a366113140098CA7180bf",
+    address: "0x9c57FE31D77860f8e418A3c48E5f017c0e933d68",
     decimals: 18,
   },
   {
     logoURI: "https://cryptologos.cc/logos/ethereum-eth-logo.png?v=022",
     name: 'DummyToken-C',
     symbol: "TKNC",
-    address: "0x57599703f8097D370ef940fd12Daf012abd2Dd4A",
+    address: "0x723dCC66A4105b75Fe14dEa40EF025C3bDcF731E",
     decimals: 18,
   },
   {
     logoURI: "https://cryptologos.cc/logos/avalanche-avax-logo.png?v=022",
     name: 'DummyToken-D',
     symbol: "TKND",
-    address: "0xDfd3A9d50be6DF5FE1E6bCb1fA78d168E632DeFa",
+    address: "0x4b170157f88809d81937E123950Dd6280d0BF1f0",
     decimals: 18,
   },
 ]
 
 const DiverseTokens = [
+  // {
+  //   logoURI: "https://cryptologos.cc/logos/usd-coin-usdc-logo.png?v=022",
+  //   name: 'Diverse USDC',
+  //   symbol: "dUSDC",
+  //   address: "0x2b8920cBdDCc3e85753423eEceCd179cb9232554",
+  //   decimals: 6,
+  //   meta: 'diverse',
+  // },
+  // {
+  //   logoURI: "https://cryptologos.cc/logos/tether-usdt-logo.svg?v=022",
+  //   name: 'Diverse Tether',
+  //   symbol: "dTether",
+  //   address: "0xECd313e29b85cAf347fb832F80427602030cD3Fc",
+  //   decimals: 6,
+  //   meta: 'diverse',
+  // },
+  // {
+  //   logoURI: "https://cryptologos.cc/logos/multi-collateral-dai-dai-logo.png?v=022",
+  //   name: 'Diverse Dai',
+  //   symbol: "dDAI",
+  //   address: "0xaB57fAf3b573B8ac1ad90255f6cF4E92DbbcCE91",
+  //   decimals: 18,
+  //   meta: 'diverse',
+  // },
   {
     logoURI: "https://cryptologos.cc/logos/usd-coin-usdc-logo.png?v=022",
-    name: 'Diverse USDC',
-    symbol: "dUSDC",
-    address: "0x2b8920cBdDCc3e85753423eEceCd179cb9232554",
-    decimals: 6,
+    name: 'DummyToken-A',
+    symbol: "TKNA",
+    address: "0x8A250B3517AD8d59354D50af0D9be5c4Cd90F070",
+    decimals: 18,
     meta: 'diverse',
   },
   {
     logoURI: "https://cryptologos.cc/logos/tether-usdt-logo.svg?v=022",
-    name: 'Diverse Tether',
-    symbol: "dTether",
-    address: "0xECd313e29b85cAf347fb832F80427602030cD3Fc",
-    decimals: 6,
+    name: 'DummyToken-B',
+    symbol: "TKNB",
+    address: "0x551181Be541f56ce6C6c13448F54Adb8eA2AB531",
+    decimals: 18,
     meta: 'diverse',
   },
   {
-    logoURI: "https://cryptologos.cc/logos/multi-collateral-dai-dai-logo.png?v=022",
-    name: 'Diverse Dai',
-    symbol: "dDAI",
-    address: "0xaB57fAf3b573B8ac1ad90255f6cF4E92DbbcCE91",
+    logoURI: "https://cryptologos.cc/logos/ethereum-eth-logo.png?v=022",
+    name: 'DummyToken-C',
+    symbol: "TKNC",
+    address: "0x14cD48F91D3ca4FE9C7e2e888d68667879942A9D",
+    decimals: 18,
+    meta: 'diverse',
+  },
+  {
+    logoURI: "https://cryptologos.cc/logos/avalanche-avax-logo.png?v=022",
+    name: 'DummyToken-D',
+    symbol: "TKND",
+    address: "0x76Cc59faf54D6262680049D4B5c74e7A587C8849",
     decimals: 18,
     meta: 'diverse',
   },
@@ -60,11 +92,16 @@ const tokenLists = {
   polygon : 'https://api-polygon-tokens.polygon.technology/tokenlists/default.tokenlist.json'
 } 
 
-const UniswapV2RouterAddress = '0xfD4676DBAb9942cEB64674D864E29aEe31C4b209'
-const UniswapV2FactoryAddress = ''
+const UniswapV2RouterAddress = '0x60a2779d0E441e06Dea955AF160cCE98DB78d261'
+const UniswapV2FactoryAddress = '0xB05AA12a5E8093A6aB561413Ea1B22684C79454B'
 
-const GanacheUniswapV2FactoryAddress = '0xa09c1da10ce94a22cCfdad98f5105d94FE66e228'
-const GanacheUniswapV2RouterAddress = '0x0C64814442463Ab058355EEFd90430B6E8717B5e'
+const GanacheUniswapV2FactoryAddress = '0xa56D009772ae5B0071A52Feae5Ba2DdBD8c7f807'
+const GanacheUniswapV2RouterAddress = '0x66bA5c37e015B0ceb7013f03A82283c727241A27'
+
+const factoryAddress = process.env.NEXT_PUBLIC_ENV == 'prod' ? UniswapV2FactoryAddress : GanacheUniswapV2FactoryAddress
+const routerAddress = process.env.NEXT_PUBLIC_ENV == 'prod' ? UniswapV2RouterAddress : GanacheUniswapV2RouterAddress
+
+const allTokens = process.env.NEXT_PUBLIC_ENV == 'prod' ? DiverseTokens : GanacheTokens;
 
 export {
   DiverseTokens,
@@ -76,5 +113,9 @@ export {
   UniswapV2FactoryAddress,
   GanacheUniswapV2FactoryAddress,
 
+  factoryAddress,
+  routerAddress,
+
+  allTokens,
   tokenLists,
 }

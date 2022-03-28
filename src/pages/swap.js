@@ -5,13 +5,13 @@ import TokenDropdown from '../components/TokenDropdown.js'
 import Swal from 'sweetalert2'
 
 import { 
-  DiverseTokens,
-  GanacheTokens,
-  UniswapV2RouterAddress,
-  GanacheUniswapV2RouterAddress,
-  UniswapV2FactoryAddress,
-  GanacheUniswapV2FactoryAddress,
-  tokenLists } from '../constants.js'
+
+  routerAddress,
+  factoryAddress,
+
+  allTokens,
+
+} from '../constants.js'
 
 import { ethers } from "ethers";
 
@@ -26,10 +26,6 @@ import IERC20 from '../abi/IERC20.json'
 import useProvider from '../hooks/useProvider.js'
 import useMetamask from '../hooks/useMetamask.js'
 
-
-const uniswapFactoryAddress = process.env.NEXT_PUBLIC_ENV == 'prod' ?  UniswapV2FactoryAddress : GanacheUniswapV2FactoryAddress;
-const uniswapRouterAddress = process.env.NEXT_PUBLIC_ENV == 'prod' ?  UniswapV2RouterAddress : GanacheUniswapV2RouterAddress;
-const dummyTokens = process.env.NEXT_PUBLIC_ENV == 'prod' ? DiverseTokens : GanacheTokens;
 
 export default function Swap() {
   const [tokens, setTokens] = useState([])
@@ -56,8 +52,11 @@ export default function Swap() {
 
   useEffect(() => {
     handleApproveButtonState()
-    handleSwapButtonState()
   },[fromToken,toToken,toTokenAmount,fromTokenAmount])
+
+  useEffect(() => {
+    handleSwapButtonState()
+  }, [approveButtonDisabled])
 
 
   useEffect(() => {
@@ -68,12 +67,12 @@ export default function Swap() {
   },[provider,signer])
 
   async function routerContractInitialize(){
-    let router = new ethers.Contract(GanacheUniswapV2RouterAddress,UniswapV2RouterABI,provider)
+    let router = new ethers.Contract(routerAddress,UniswapV2RouterABI,provider)
     setRouterContract(router)
   }
 
   async function factoryContractInitialize(){
-    let factory = new ethers.Contract(GanacheUniswapV2FactoryAddress,UniswapV2FactoryABI,provider)
+    let factory = new ethers.Contract(factoryAddress,UniswapV2FactoryABI,provider)
     let poolLength = (await factory.allPairsLength()).toNumber()
 
     setFactoryContract(factory)
@@ -115,7 +114,7 @@ export default function Swap() {
   function finalizeResultTokens(foundTokens){
     let _tokens = []
 
-    dummyTokens.map((t) => {
+    allTokens.map((t) => {
       if(foundTokens.find((i) => i.address === t.address) !== undefined){
         _tokens.push(t)
       }
@@ -158,13 +157,10 @@ export default function Swap() {
 
     try{
       const fromTokenContract = new ethers.Contract(fromToken.address, IERC20abi, provider);
-      const toTokenContract = new ethers.Contract(toToken.address, IERC20abi, provider);
 
       const fromTokenContractSigner = fromTokenContract.connect(signer)
-      const toTokenContractSigner = toTokenContract.connect(signer)
 
-      await fromTokenContractSigner.approve(uniswapRouterAddress,ethers.utils.parseEther(fromTokenAmount,fromToken.decimals))
-      await toTokenContractSigner.approve(uniswapRouterAddress,ethers.utils.parseEther(toTokenAmount,toToken.decimals))
+      await (await fromTokenContractSigner.approve(routerAddress,ethers.utils.parseEther(fromTokenAmount,fromToken.decimals))).wait()
 
       setApproveButtonDisabled(true)
       setSwapButtonDisabled(false)
@@ -194,6 +190,19 @@ export default function Swap() {
         metamaskAccount,
         2648035579,
       )).wait()
+
+      Swal.fire({ 
+        icon: 'success', 
+        title: 'Successfully Swapped Tokens', 
+        showCancelButton: true,
+        confirmButtonText: 'Add Swapped Token',
+        cancelButtonText: 'Close',
+        timer: 4000 
+      }).then((result) => {
+        if (result.isConfirmed) {
+          window.open(`https://metamask.dsolutions.mn/add-token?name=${fromToken.name}&symbol=${fromToken.symbol}&decimals=${fromToken.decimals}&address=${fromToken.address}&imgUrl=https://www.dsolutions.mn/static/media/logo-no-text.8057f73a.png`);
+        }
+      })
 
       setApproveButtonDisabled(true)
       setSwapButtonDisabled(true)
@@ -266,15 +275,11 @@ export default function Swap() {
   async function handleApproveButtonState() {
     if(fromToken != null && toToken != null && parseInt(toTokenAmount) != 0 && parseInt(fromTokenAmount) != 0){
       const fromTokenContract = new ethers.Contract(fromToken.address, IERC20abi, provider);
-      const toTokenContract = new ethers.Contract(toToken.address, IERC20abi, provider);
 
-      let fromTokenAllowanceBN = await fromTokenContract.allowance(metamaskAccount,uniswapRouterAddress)
-      let toTokenAllowanceBN = await toTokenContract.allowance(metamaskAccount,uniswapRouterAddress)
+      let fromTokenAllowanceBN = await fromTokenContract.allowance(metamaskAccount,routerAddress)
 
       setApproveButtonDisabled(false)
-
-      // if(parseInt(fromTokenAllowanceBN.toString()) < parseInt(fromTokenAmount) || parseInt(toTokenAllowanceBN.toString()) < parseInt(toTokenAmount)){
-      //   setApproveButtonDisabled(false)
+      // if(parseInt(fromTokenAllowanceBN.toString()) < parseInt(fromTokenAmount)){
       // }
     }else{
       setApproveButtonDisabled(true)
@@ -288,7 +293,6 @@ export default function Swap() {
 
           if(approveButtonDisabled){
             setSwapButtonDisabled(false)
-            setApproveButtonDisabled(true)
           }else{
             setSwapButtonDisabled(true)
           }
@@ -297,14 +301,4 @@ export default function Swap() {
       }
     }
   }
-}
-
-
-
-function addTokens(queryData){
-  if(process.env.NEXT_PUBLIC_ENV != 'prod'){
-    queryData.tokens = [...dummyTokens]
-  }
-
-  return queryData
 }
