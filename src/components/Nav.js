@@ -56,13 +56,13 @@ export default function Nav() {
 
           <li className="dropdown dropdown-open">
             <Link href="/pool/all">
-              <a tabindex="0" class="m-1" className={`${checkConnection()}`}>
+              <a tabIndex="0" className="m-1" className={`${checkConnection()}`}>
                 Pool
                 <svg className="fill-current" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"><path d="M7.41,8.58L12,13.17L16.59,8.58L18,10L12,16L6,10L7.41,8.58Z"/></svg>
               </a>
             </Link>
 
-            <ul tabindex="0" className={`p-2 shadow dropdown-content menu bg-base-100 rounded-box w-52`}>
+            <ul tabIndex="0" className={`p-2 shadow dropdown-content menu bg-base-100 rounded-box w-52`}>
               <li><Link href="/pool/create"><a className={`${checkConnection()}`}>Create Pool</a></Link></li>
               <li><Link href="/pool/all"><a className={`${checkConnection()} my-2`}>All Pool</a></Link></li>
               <li><Link href="/pool/my"><a className={`${checkConnection()}`}>My Pool</a></Link></li>
