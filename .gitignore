@@ -4,6 +4,10 @@ coverage
 coverage.json
 typechain
 
+.undodir
+.mnkhodVimWorkspace.vim
+
+
 #Hardhat files
 cache
 artifacts

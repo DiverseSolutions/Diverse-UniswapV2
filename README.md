@@ -3,12 +3,12 @@
 
 
 #### UniswapV2 Factory
-	- Contract Address - 0xB05AA12a5E8093A6aB561413Ea1B22684C79454B
+	- Contract Address - 0x8dbCE8d8aDd708c35293771bd73d908804b020A2
 	- FeeSetter Address - 0xb83E7D21cd4c2f162692bbf2C94f864FEE488965
 	- Owner Address - 0xb83E7D21cd4c2f162692bbf2C94f864FEE488965 
 
 #### UniswapV2 Router
-	- Contract Address - 0x60a2779d0E441e06Dea955AF160cCE98DB78d261
+	- Contract Address - 0x5374a8Ab01368D9A1Dff53c28BdA01E7b969c2eC
 	- Owner Address - 0xb83E7D21cd4c2f162692bbf2C94f864FEE488965 	
 
 <br/>
